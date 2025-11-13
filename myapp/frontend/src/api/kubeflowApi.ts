@@ -1,15 +1,12 @@
 import { AxiosResponse } from 'axios'
 import axios, { AxiosResFormat } from '.'
-import { IADUGTemplateInfo, IAppHeaderItem, IAppMenuItem, ICustomDialog } from './interface/kubeflowInterface'
+import { IADUGTemplateInfo, IAppMenuItem, ICustomDialog } from './interface/kubeflowInterface'
 import { ITabsModalData } from './interface/tabsModalInterface'
 
 export const getAppMenu = (): Promise<AxiosResponse<IAppMenuItem[]>> => {
     return axios.get('/myapp/menu')
 }
 
-export const getAppHeaderConfig = (): Promise<AxiosResponse<IAppHeaderItem[]>> => {
-    return axios.get('/myapp/navbar_right')
-}
 
 export const userLogout = (): Promise<AxiosResponse<IAppMenuItem[]>> => {
     return axios.get('/logout')

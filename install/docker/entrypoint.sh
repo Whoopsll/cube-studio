@@ -10,8 +10,6 @@ rm -f /home/myapp/myapp/static/dataset
 mkdir -p /data/k8s/kubeflow/dataset
 ln -s /data/k8s/kubeflow/dataset /home/myapp/myapp/static/
 
-rm -f /home/myapp/myapp/static/aihub
-ln -s /cube-studio/aihub /home/myapp/myapp/static/
 
 rm -f /home/myapp/myapp/static/global
 ln -s /data/k8s/kubeflow/global /home/myapp/myapp/static/

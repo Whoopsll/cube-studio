@@ -12,8 +12,8 @@ import { IRouterConfigPlusItem } from './api/interface/baseInterface';
 import { formatRoute, getDefaultOpenKeys, routerConfigPlus } from './routerConfig';
 import SubMenu from 'antd/lib/menu/SubMenu';
 import { clearWaterNow, drawWater, drawWaterNow, getParam, obj2UrlParam, parseParam2Obj } from './util'
-import { getAppHeaderConfig, getAppMenu, getCustomDialog, userLogout } from './api/kubeflowApi';
-import { IAppHeaderItem, IAppMenuItem, ICustomDialog } from './api/interface/kubeflowInterface';
+import { getAppMenu, getCustomDialog, userLogout } from './api/kubeflowApi';
+import { IAppMenuItem, ICustomDialog } from './api/interface/kubeflowInterface';
 import { AppstoreOutlined, DownOutlined, LeftOutlined, RightOutlined, TranslationOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie'
 import { handleTips } from './api';
@@ -58,7 +58,6 @@ const AppWrapper = (props: IProps) => {
   const [imgUrlProtraits, setImgUrlProtraits] = useState('')
   const [customDialogVisable, setCustomDialogVisable] = useState(false)
   const [customDialogInfo, setCustomDialogInfo] = useState<ICustomDialog>()
-  const [headerConfig, setHeaderConfig] = useState<IAppHeaderItem[]>([])
   const [navSelected, setNavSelected] = useState<string[]>([])
   const isShowNav = getParam('isShowNav')
 
@@ -84,10 +83,6 @@ const AppWrapper = (props: IProps) => {
       setCurrentRouteComponent(() => () => RouterConfig(tarRoute as RouteObject[]))
     }).catch(err => { })
 
-    getAppHeaderConfig().then(res => {
-      const config = res.data
-      setHeaderConfig(config)
-    }).catch(err => { })
   }, [])
 
   useEffect(() => {
@@ -362,28 +357,6 @@ const AppWrapper = (props: IProps) => {
           </div>
 
           <div className="d-f ac plr16 h100">
-            {
-              headerConfig.map(config => {
-                if (config.icon) {
-                  return <a
-                    href={config.link}
-                    target="_blank"
-                    className="mr12 d-f ac" rel="noreferrer"
-                  >
-                    <span className="pr4">{config.text}</span><span className="icon-custom" dangerouslySetInnerHTML={{ __html: config.icon }}></span>
-                  </a>
-                } else if (config.pic_url) {
-                  return <a
-                    href={config.link}
-                    target="_blank"
-                    className="mr12 d-f ac" rel="noreferrer"
-                  >
-                    <span className="pr4">{config.text}</span><img style={{ height: 30 }} src={config.pic_url} alt="" />
-                  </a>
-                }
-              })
-            }
-
             <Dropdown overlay={<Menu>
               <Menu.Item onClick={() => {
                 navigate('/user')

@@ -212,7 +212,6 @@ def pod_resource():
                 all_tasks_json[cluster_name] = {}
                 # print(all_node_json)
                 all_namespaces = security_manager.get_all_namespace(db.session)
-                all_namespaces.append('aihub')
                 all_namespaces=list(set(all_namespaces))
                 def get_namespace_task(namespace):
                     k8s_client = K8s(cluster.get('KUBECONFIG', ''))
@@ -498,20 +497,6 @@ class Total_Resource_ModelView_Api(MyappFormRestApi):
                         if inference:
                             inference.model_status='offline'
                             db.session.commit()
-                # 如果是aihub命名空间，需要删除 deployemnt和service和虚拟服务
-                if namespace == 'aihub':
-                    service_name = pod['label'].get("app", '')
-                    if service_name:
-                        k8s_client.delete_deployment(namespace=namespace, name=service_name)
-                        k8s_client.delete_service(namespace=namespace, name=service_name)
-                        k8s_client.delete_istio_ingress(namespace=namespace, name=service_name)
-                    from myapp.models.model_aihub import Aihub
-                    aihub = db.session.query(Aihub).filter_by(name=service_name).first()
-                    if aihub:
-                        expand = json.loads(aihub.expand) if aihub.expand else {}
-                        expand['status'] = 'offline'
-                        aihub.expand = json.dumps(expand)
-                        db.session.commit()
                 # 如果是pipeline命名空间，按照run-id进行删除，这里先只删除pod，也会造成任务停止
                 if namespace == 'pipeline':
                     k8s_client.delete_pods(namespace=namespace, pod_name=pod_name)

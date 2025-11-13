@@ -1,5 +1,5 @@
 
-for namespace in 'infra' 'kubeflow' 'istio-system' 'pipeline' 'automl' 'jupyter' 'service' 'monitoring' 'logging' 'kube-system' 'aihub'
+for namespace in 'infra' 'kubeflow' 'istio-system' 'pipeline' 'automl' 'jupyter' 'service' 'monitoring' 'logging' 'kube-system'
 do
     kubectl create ns $namespace
     kubectl delete secret docker-registry hubsecret -n $namespace

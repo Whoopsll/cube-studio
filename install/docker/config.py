@@ -720,8 +720,6 @@ AUTOML_NAMESPACE = 'automl'
 NOTEBOOK_NAMESPACE = 'jupyter'
 # 内部服务命名空间，必填service
 SERVICE_NAMESPACE = 'service'
-# aihub的命令空间
-AIHUB_NAMESPACE = 'aihub'
 # 服务链路追踪地址
 SERVICE_PIPELINE_ZIPKIN='http://xx.xx.xx.xx:9401'
 SERVICE_PIPELINE_JAEGER='tracing.service'
@@ -737,7 +735,7 @@ PUSH_REPOSITORY_ORG='ccr.ccs.tencentyun.com/cube-studio/'
 USER_IMAGE = 'ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9'
 # notebook每个pod使用的用户账号
 JUPYTER_ACCOUNTS=''
-HUBSECRET_NAMESPACE=[PIPELINE_NAMESPACE,AUTOML_NAMESPACE,NOTEBOOK_NAMESPACE,SERVICE_NAMESPACE,AIHUB_NAMESPACE]
+HUBSECRET_NAMESPACE=[PIPELINE_NAMESPACE,AUTOML_NAMESPACE,NOTEBOOK_NAMESPACE,SERVICE_NAMESPACE]
 
 # notebook使用的镜像
 NOTEBOOK_IMAGES=[

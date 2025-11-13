@@ -18,12 +18,6 @@ export interface IAppMenuItem {
     path?: string
 }
 
-export interface IAppHeaderItem {
-    text: string
-    icon?: string
-    link: string
-    pic_url?: string
-}
 export interface IADUGTemplateInfo {
     action?: Record<string, IADUGTemplateActionItem>
     add_columns: Array<Record<string, any>>

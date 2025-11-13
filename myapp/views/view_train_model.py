@@ -147,7 +147,7 @@ triton-server：框架:地址。onnx:模型文件地址model.onnx，pytorch:torc
             _('算法框架'),
             description= _("选项xgb、tf、pytorch、onnx、tensorrt等"),
             widget=Select2Widget(),
-            choices=[['sklearn','sklearn'],['xgb', 'xgb'], ['tf', 'tf'], ['pytorch', 'pytorch'], ['onnx', 'onnx'], ['tensorrt', 'tensorrt'],['aihub', 'aihub']],
+            choices=[['sklearn','sklearn'],['xgb', 'xgb'], ['tf', 'tf'], ['pytorch', 'pytorch'], ['onnx', 'onnx'], ['tensorrt', 'tensorrt']],
             validators=[DataRequired()]
         ),
         'api_type': SelectField(

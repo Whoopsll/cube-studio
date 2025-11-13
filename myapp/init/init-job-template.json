@@ -1878,8 +1878,7 @@
             "tf",
             "pytorch",
             "onnx",
-            "tensorrt",
-            "aihub"
+            "tensorrt"
           ],
           "range": "",
           "default": "tf",
