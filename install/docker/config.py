@@ -873,9 +873,6 @@ MODEL_URLS = {
     "train_model": "/frontend/service/inferenceservice/model_manager",
     "inferenceservice": "/frontend/service/inferenceservice/inferenceservice_manager",
 
-    "model_market_visual": "/frontend/ai_hub/model_market/model_visual",
-    "model_market_voice": "/frontend/ai_hub/model_market/model_voice",
-    "model_market_language": "/frontend/ai_hub/model_market/model_language",
 }
  # 可以跨域分享cookie的子域名，例如.svc.local.com
 COOKIE_DOMAIN = ''
