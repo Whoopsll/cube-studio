@@ -52,8 +52,8 @@ spec:
         - name: hubsecret
       containers:
         - name: kubeflow-dashboard
-          image: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard
-          imagePullPolicy: Always  # IfNotPresent   Always
+          image: 47.116.204.159:8089/cube/kubeflow-dashboard:2025.11.13.v1
+          imagePullPolicy: IfNotPresent  # IfNotPresent   Always
           command: ["bash","/entrypoint.sh"]
           env:
           - name: STAGE
