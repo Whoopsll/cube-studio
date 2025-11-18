@@ -6,9 +6,105 @@ import json
 import time
 import requests
 import pysnooper
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 
 KFJ_CREATOR = os.getenv('KFJ_CREATOR', 'admin')
 host = os.getenv('HOST', os.getenv('KFJ_MODEL_REPO_API_URL', 'http://kubeflow-dashboard.infra')).strip('/')
+
+def create_accessmgt_virtualservice(namespace='service', service_name='accessmgt-backend', service_port=10086):
+    """创建 VirtualService，将 /api/accessmgt 路径路由到后端服务"""
+    try:
+        # 加载 Kubernetes 配置
+        try:
+            config.load_incluster_config()  # 在 Pod 内运行
+        except:
+            config.load_kube_config()  # 本地运行
+        
+        # 创建 CustomObjectsApi 客户端
+        api = client.CustomObjectsApi()
+        
+        # VirtualService 配置
+        vs_body = {
+            "apiVersion": "networking.istio.io/v1alpha3",
+            "kind": "VirtualService",
+            "metadata": {
+                "name": "accessmgt-api-route",
+                "namespace": namespace
+            },
+            "spec": {
+                "gateways": [
+                    "kubeflow/kubeflow-gateway"
+                ],
+                "hosts": [
+                    "*"
+                ],
+                "http": [
+                    {
+                        "match": [
+                            {
+                                "uri": {
+                                    "prefix": "/api/accessmgt"
+                                }
+                            }
+                        ],
+                        "rewrite": {
+                            "uri": "/"
+                        },
+                        "route": [
+                            {
+                                "destination": {
+                                    "host": f"{service_name}.{namespace}.svc.cluster.local",
+                                    "port": {
+                                        "number": service_port
+                                    }
+                                }
+                            }
+                        ],
+                        "timeout": "300s"
+                    }
+                ]
+            }
+        }
+        
+        # 尝试创建或更新 VirtualService
+        try:
+            # 先尝试获取现有的 VirtualService
+            api.get_namespaced_custom_object(
+                group="networking.istio.io",
+                version="v1alpha3",
+                namespace=namespace,
+                plural="virtualservices",
+                name="accessmgt-api-route"
+            )
+            # 如果存在，则更新
+            print(f'更新 VirtualService: accessmgt-api-route')
+            api.replace_namespaced_custom_object(
+                group="networking.istio.io",
+                version="v1alpha3",
+                namespace=namespace,
+                plural="virtualservices",
+                name="accessmgt-api-route",
+                body=vs_body
+            )
+            print('VirtualService 更新成功：/api/accessmgt -> 后端服务')
+        except ApiException as e:
+            if e.status == 404:
+                # 不存在，创建新的
+                print(f'创建 VirtualService: accessmgt-api-route')
+                api.create_namespaced_custom_object(
+                    group="networking.istio.io",
+                    version="v1alpha3",
+                    namespace=namespace,
+                    plural="virtualservices",
+                    body=vs_body
+                )
+                print('VirtualService 创建成功：/api/accessmgt -> 后端服务')
+            else:
+                print(f'创建 VirtualService 失败: {e}')
+    except Exception as e:
+        print(f'创建 VirtualService 时出错: {e}')
+        print('提示：可以手动创建 VirtualService，见 README.md')
 
 @pysnooper.snoop()
 def deploy(**kwargs):
@@ -75,7 +171,7 @@ def deploy(**kwargs):
             'ports': kwargs.get('backend_ports', '10086'),
             'volume_mount': kwargs.get('backend_volume_mount', ''),
             'inference_config': kwargs.get('backend_inference_config', ''),
-            'host': kwargs.get('backend_host', ''),
+            'host': kwargs.get('backend_host', ''),  # 后端服务域名，留空使用默认域名
             'hpa': kwargs.get('backend_hpa', ''),
             'service_type': kwargs.get('backend_service_type', 'serving'),
             'metrics': kwargs.get('backend_metrics', ''),
@@ -112,6 +208,15 @@ def deploy(**kwargs):
             res = requests.get(url, headers=headers, allow_redirects=False)
             if res.status_code in [302, 200]:
                 print('后端服务部署成功')
+                
+                # 创建 VirtualService，将 /api/accessmgt 路由到后端服务
+                # InferenceService 默认部署在 service 命名空间
+                backend_namespace = backend_service.get('namespace') or 'service'
+                create_accessmgt_virtualservice(
+                    namespace=backend_namespace,
+                    service_name=backend_service_name,
+                    service_port=int(kwargs.get('backend_ports', '10086'))
+                )
             else:
                 print(f'后端服务部署失败: {res.content}')
                 exit(1)
