@@ -52,16 +52,32 @@ if __name__ == "__main__":
     # 读取配置文件
     with open("config.yml", encoding='utf-8') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+
+        # 优先从环境变量读取 MySQL 配置，未设置时回退到 config.yml
+        mysql_ip = os.getenv("MYSQL_HOST", config.get("mysql_ip", "127.0.0.1"))
+        mysql_port = int(os.getenv("MYSQL_PORT", config.get("mysql_port", 3306)))
+        mysql_user = os.getenv("MYSQL_USER", config.get("mysql_user", "root"))
+        mysql_pwd = os.getenv("MYSQL_PASSWORD", config.get("mysql_pwd", "admin"))
+        mysql_db = os.getenv("MYSQL_DB", config.get("mysql_db", "AccessDB"))
+
         # 构建数据库连接字符串
-        system_connect = f'mysql+pymysql://{config["mysql_user"]}:{urlquote(config["mysql_pwd"])}@{config["mysql_ip"]}:{config["mysql_port"]}/{config["mysql_db"]}'
+        system_connect = (
+            f"mysql+pymysql://{mysql_user}:{urlquote(mysql_pwd)}@"
+            f"{mysql_ip}:{mysql_port}/{mysql_db}"
+        )
+
         # 创建数据库引擎
         mysql_engine = create_engine(system_connect)
         # 将数据库引擎存入全局变量
         global_var.set_value("mysql_engine", mysql_engine)
+
         # 获取当前的绝对路径，存储到全局变量中
         current_dir = config["current_dir"]
-        global_var.set_value("current_dir", current_dir)  # 存储路径到全局变量中，键名为'current_path'，值为路径字符串
-        # 启动FastAPI服务器
-        uvicorn.run(app, host=config["server_ip"], port=config["server_port"])
+        global_var.set_value("current_dir", current_dir)
+
+        # 启动 FastAPI 服务器，host/port 也支持环境变量覆盖
+        server_ip = os.getenv("SERVER_HOST", config.get("server_ip", "127.0.0.1"))
+        server_port = int(os.getenv("SERVER_PORT", config.get("server_port", 10086)))
+        uvicorn.run(app, host=server_ip, port=server_port)
 
 
