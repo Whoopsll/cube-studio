@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>目标毁伤评估</title>
+    <style>
+        body{margin:0;font-family:"Microsoft YaHei",sans-serif;background:#f5f5f5;}
+        h1{text-align:center;margin:20px 0;color:#333;}
+        .container{max-width:1400px;margin:0 auto;padding:20px;}
+        
+        /* 主布局：左右分栏 */
+        .main-layout{display:flex;gap:40px;margin-top:30px;align-items:flex-start;}
+        .left-panel{flex:0 0 450px;}
+        .right-panel{flex:1;}
+        
+        /* 场景选择区域 */
+        .scene-selector{display:flex;flex-direction:column;gap:20px;align-items:center;padding-top:50px;}
+        .scene-selector-left{display:flex;flex-direction:column;align-items:center;}
+        .scene-selector h3{margin-bottom:15px;color:#666;text-align:center;margin-top:0;}
+        .scene-buttons{display:flex;flex-direction:row;gap:15px;max-width:300px;}
+        .scene-btn{padding:12px 30px;font-size:16px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;transition:all 0.3s;min-width:120px;}
+        .scene-btn:hover{background:#45a049;}
+        .scene-btn.active{background:#2E7D32;}
+        
+        /* 上传区域 */
+        .upload-section{margin-bottom:30px;text-align:center;}
+        #uploadBtn{display:block;margin:10px auto;padding:10px 20px;font-size:16px;background:#2196F3;color:white;border:none;border-radius:5px;cursor:pointer;}
+        #uploadBtn:hover{background:#0b7dda;}
+        #uploadBtn:disabled{background:#ccc;cursor:not-allowed;}
+        #loader{text-align:center;margin-top:30px;font-size:14px;color:#555;}
+        
+        /* 结果区域 */
+        .result{display:flex;justify-content:center;margin-top:0;gap:40px;}
+        .result img{border:2px solid #2196F3;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform 0.3s;width:400px;display:block;}
+        .result img:hover{transform:scale(1.02);}
+        .image-label{text-align:center;margin-top:12px;color:#333;font-weight:bold;font-size:16px;}
+        
+        /* 场景预览 - 与毁伤图片对齐 */
+        .scene-preview{display:flex;flex-direction:column;align-items:center;width:400px;}
+        .scene-preview img{width:400px;border:2px solid #4CAF50;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:block;}
+        
+        /* 毁伤图片模块 - 与场景图片对齐 */
+        .damage-panel{display:flex;flex-direction:column;align-items:center;width:400px;}
+        
+        /* 占位符样式 */
+        .placeholder{width:400px;height:300px;background:#f0f0f0;border:2px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px;position:relative;}
+        
+        /* 识别结果图片区域 */
+        .image-wrapper{display:flex;flex-direction:column;align-items:center;width:400px;}
+        
+        /* 信息区域 */
+        .info-wrapper{display:flex;flex-direction:column;align-items:center;margin-top:30px;}
+        .info{background:#fff;padding:15px 25px;border-radius:8px;text-align:left;line-height:1.8;box-shadow:0 4px 12px rgba(0,0,0,0.15);width:600px;}
+        .info strong{color:#667eea;margin-right:8px;}
+        
+        /* 信息区域占位符 */
+        .info-placeholder{width:600px;height:150px;background:#f0f0f0;border:2px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;}
+    </style>
+</head>
+<body>
+    <h1>目标毁伤评估</h1>
+    
+    <div class="container">
+        <div class="main-layout">
+            <!-- 左侧：场景选择 -->
+            <div class="left-panel">
+                <div class="scene-selector">
+                    <div class="scene-selector-left">
+                        <h3>请选择场景</h3>
+                        <div class="scene-buttons">
+                            <button class="scene-btn" data-scene="1">场景一</button>
+                            <button class="scene-btn" data-scene="2">场景二</button>
+                        </div>
+                    </div>
+                    <div class="scene-preview" id="scenePreview">
+                        <p class="image-label">场景图片（毁伤前）</p>
+                        <div class="placeholder" id="scenePlaceholder">等待选择场景</div>
+                        <img id="sceneImg" alt="场景图片" style="display:none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：上传和结果展示 -->
+            <div class="right-panel">
+                <!-- 上传区域 -->
+                <div class="upload-section">
+                    <h3>上传毁伤后图片</h3>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+                    <button id="uploadBtn" disabled>上传图片</button>
+                </div>
+
+                <div id="loader" style="display:none;">正在检测，请稍候…</div>
+
+                <!-- 结果展示区 -->
+                <div id="resultPanel">
+                    <div class="result">
+                        <div class="damage-panel">
+                            <p class="image-label">毁伤后图片</p>
+                            <div class="placeholder" id="damagePlaceholder">等待上传图片</div>
+                            <img id="damageImg" alt="毁伤后图片" style="display:none;">
+                        </div>
+                        <div class="image-wrapper">
+                            <p class="image-label">识别结果</p>
+                            <div class="placeholder" id="resultPlaceholder">等待识别结果</div>
+                            <img id="resultImg" alt="识别结果" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="info-wrapper">
+                        <p class="image-label">检测信息</p>
+                        <div class="info-placeholder" id="infoPlaceholder">等待检测结果</div>
+                        <div class="info" id="infoText" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const loader    = document.getElementById('loader');
+    const resultPanel=document.getElementById('resultPanel');
+    const scenePreview = document.getElementById('scenePreview');
+    const sceneImg = document.getElementById('sceneImg');
+    const scenePlaceholder = document.getElementById('scenePlaceholder');
+    const damageImg = document.getElementById('damageImg');
+    const damagePlaceholder = document.getElementById('damagePlaceholder');
+    const resultImg = document.getElementById('resultImg');
+    const resultPlaceholder = document.getElementById('resultPlaceholder');
+    const infoText = document.getElementById('infoText');
+    const infoPlaceholder = document.getElementById('infoPlaceholder');
+    
+    let selectedScene = null;
+
+    // 场景选择
+    document.querySelectorAll('.scene-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 移除所有active状态
+            document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+            // 添加active状态
+            btn.classList.add('active');
+            selectedScene = btn.dataset.scene;
+            
+            // 显示场景图片，隐藏占位符
+            sceneImg.src = `/image/${selectedScene}.png?folder=scene`;
+            scenePlaceholder.style.display = 'none';
+            sceneImg.style.display = 'block';
+            
+            // 启用上传按钮
+            uploadBtn.disabled = false;
+            
+            // 重置文件输入
+            fileInput.value = '';
+            
+            // 重置结果区域
+            damagePlaceholder.style.display = 'block';
+            damageImg.style.display = 'none';
+            resultPlaceholder.style.display = 'block';
+            resultImg.style.display = 'none';
+            infoPlaceholder.style.display = 'flex';
+            infoText.style.display = 'none';
+        });
+    });
+
+    // 上传按钮
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    // 文件选择
+    fileInput.addEventListener('change', async ()=>{
+        const file = fileInput.files[0];
+        if(!file || !selectedScene) return;
+
+        // 1. 立即本地预览毁伤图片，隐藏占位符
+        damageImg.src = URL.createObjectURL(file);
+        damagePlaceholder.style.display = 'none';
+        damageImg.style.display = 'block';
+        resultPlaceholder.style.display = 'block';  // 结果占位符保持显示
+        resultImg.style.display = 'none';
+        infoPlaceholder.style.display = 'flex';
+        infoText.style.display = 'none';
+
+        loader.style.display = 'block';
+
+        try{
+            const filename = `${selectedScene}.png`;
+            const r = await fetch('/upload',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    scene_id: selectedScene,
+                    filename: filename
+                })
+            });
+            const data = await r.json();
+            if(!r.ok) throw new Error(data.error || '未知错误');
+
+            // 2. 显示识别结果图，隐藏占位符
+            resultImg.src = data.result_url;
+            resultPlaceholder.style.display = 'none';
+            resultImg.style.display = 'block';
+            
+            // 显示信息文本，隐藏占位符
+            const formattedTexts = data.texts.map(text => {
+                if (text.includes('耗时')) {
+                    return `<strong>⏱️</strong> ${text}`;
+                } else if (text.includes('毁伤等级')) {
+                    const level = text.includes('高') ? '🔴' : text.includes('中') ? '🟡' : '🟢';
+                    return `<strong>${level}</strong> ${text}`;
+                } else if (text.includes('建议')) {
+                    return `<strong>💡</strong> ${text}`;
+                }
+                return text;
+            });
+            infoPlaceholder.style.display = 'none';
+            infoText.innerHTML = formattedTexts.join('<br>');
+            infoText.style.display = 'block';
+        }catch(e){
+            alert('出错：'+e.message);
+        }finally{
+            loader.style.display = 'none';
+        }
+    });
+    </script>
+</body>
+</html>
