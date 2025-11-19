@@ -183,7 +183,7 @@ export function drawWater() {
     if (!id)
         id = '';
     const content = username;
-    const src = id + " @Cube Studio";
+    const src = id + " @目标毁伤评估";
 
     window.onload = function () {
         drawWaterMark({ content: content, src: src });
@@ -198,7 +198,7 @@ export function drawWaterNow() {
     if (!id)
         id = '';
     const content = username;
-    const src = id + " @Cube Studio";
+    const src = id + " @目标毁伤评估";
 
     drawWaterMark({ content: content, src: src });
 }

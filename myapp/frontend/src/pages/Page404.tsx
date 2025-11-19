@@ -10,7 +10,7 @@ export default function Page404() {
                 {/* <div>
                     <img className="pb32 w256" src={require('../images/cube-studio.svg').default} alt="" />
                 </div> */}
-                <div className="fs16">Wellcome to Cube Studio</div>
+                <div className="fs16">Wellcome to 目标毁伤评估</div>
             </div>
         </div>
     )
