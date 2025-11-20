@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pydantic import BaseModel, ConfigDict
@@ -57,6 +59,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
+templates = Jinja2Templates(directory="templates")
+
 # 数据库依赖注入
 def get_db():
     db = SessionLocal()
@@ -67,9 +71,15 @@ def get_db():
 
 # API 路由
 
-@app.get("/")
-async def root():
-    """健康检查"""
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    """渲染简单的 Web 页面"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/api/status")
+async def api_status():
+    """服务状态"""
     return {
         "message": "FastAPI MySQL Demo",
         "status": "running",

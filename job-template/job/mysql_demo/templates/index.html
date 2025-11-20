@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>FastAPI MySQL Demo</title>
+    <style>
+      body {
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+        background: #f5f6fa;
+        margin: 0;
+        padding: 0;
+        color: #2f3542;
+      }
+      header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: #fff;
+        padding: 32px 24px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      }
+      main {
+        max-width: 960px;
+        margin: -40px auto 60px;
+        padding: 24px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+        padding: 24px;
+        margin-bottom: 32px;
+      }
+      .card h2 {
+        margin-top: 0;
+        color: #1d3354;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #dfe4ea;
+        margin-bottom: 16px;
+        font-size: 15px;
+      }
+      button {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        background: #1e90ff;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease, transform 0.1s;
+      }
+      button:hover {
+        box-shadow: 0 10px 18px rgba(30, 144, 255, 0.35);
+        transform: translateY(-1px);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f2f6;
+        text-align: left;
+      }
+      th {
+        background: #f8f9fb;
+        font-weight: 600;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #2ed573;
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: #1b5f92;
+        background: #e1f3ff;
+        margin-left: 8px;
+      }
+      .actions button {
+        margin-right: 8px;
+        background: #ff4757;
+      }
+      .actions button.secondary {
+        background: #747d8c;
+      }
+      .empty {
+        text-align: center;
+        padding: 24px;
+        color: #94a3b8;
+      }
+      @media (max-width: 600px) {
+        main {
+          margin-top: -20px;
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>FastAPI MySQL Demo</h1>
+      <p>一个简单的用户管理示例，展示 FastAPI 连接 MySQL 的实时能力</p>
+      <div class="status">
+        <span class="status-dot"></span>
+        服务运行中
+        <span class="badge" id="dbName">数据库：加载中...</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>创建用户</h2>
+        <label for="name">姓名</label>
+        <input id="name" placeholder="请输入姓名，例如：张三" />
+
+        <label for="email">邮箱</label>
+        <input
+          id="email"
+          placeholder="请输入邮箱，例如：zhangsan@example.com"
+        />
+
+        <button onclick="createUser()">创建</button>
+        <button class="secondary" style="margin-left: 8px" onclick="resetForm()">
+          重置
+        </button>
+        <p id="formMessage"></p>
+      </section>
+
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <h2>用户列表</h2>
+          <button onclick="loadUsers()">刷新列表</button>
+        </div>
+        <div id="userTableWrapper">
+          <div class="empty">正在加载用户数据...</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const formMessage = document.getElementById("formMessage");
+      const userTableWrapper = document.getElementById("userTableWrapper");
+      const dbNameBadge = document.getElementById("dbName");
+
+      async function createUser() {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+
+        if (!name || !email) {
+          formMessage.textContent = "请填写完整信息";
+          formMessage.style.color = "#ff4757";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email }),
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.detail || "创建失败");
+          }
+          formMessage.textContent = "用户创建成功";
+          formMessage.style.color = "#2ed573";
+          resetForm();
+          loadUsers();
+        } catch (err) {
+          formMessage.textContent = err.message;
+          formMessage.style.color = "#ff4757";
+        }
+      }
+
+      function resetForm() {
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        formMessage.textContent = "";
+      }
+
+      async function loadUsers() {
+        userTableWrapper.innerHTML = '<div class="empty">加载中...</div>';
+        try {
+          const res = await fetch("/api/users");
+          if (!res.ok) throw new Error("加载失败");
+          const users = await res.json();
+          if (!users.length) {
+            userTableWrapper.innerHTML =
+              '<div class="empty">暂无用户，快来创建一个吧！</div>';
+            return;
+          }
+          const rows = users
+            .map(
+              (user) => `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.name}</td>
+              <td>${user.email}</td>
+              <td>${new Date(user.created_at).toLocaleString()}</td>
+              <td class="actions">
+                <button onclick="deleteUser(${user.id})">删除</button>
+              </td>
+            </tr>
+          `
+            )
+            .join("");
+          userTableWrapper.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>姓名</th>
+                  <th>邮箱</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        } catch (err) {
+          userTableWrapper.innerHTML = `<div class="empty">${err.message}</div>`;
+        }
+      }
+
+      async function deleteUser(id) {
+        if (!confirm("确认删除该用户吗？")) return;
+        try {
+          const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error("删除失败");
+          loadUsers();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      async function loadStatus() {
+        try {
+          const res = await fetch("/api/status");
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          dbNameBadge.textContent = `数据库：${data.database}`;
+        } catch (err) {
+          dbNameBadge.textContent = "数据库：未知";
+        }
+      }
+
+      loadStatus();
+      loadUsers();
+    </script>
+  </body>
+</html>
+

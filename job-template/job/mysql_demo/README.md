@@ -52,6 +52,11 @@ python app.py
 
 默认监听地址：<http://127.0.0.1:8080>
 
+访问说明：
+
+- 根路径 `http://127.0.0.1:8080/`：展示内置的用户管理页面（无需前端代码）
+- API 状态 `http://127.0.0.1:8080/api/status`：返回 JSON 状态信息
+
 ## API 接口
 
 ### 健康检查
@@ -340,45 +345,77 @@ chmod +x build.sh
 
 ## 使用示例
 
+### 访问地址说明
+
+部署成功后，可以在 Cube Studio 的"推理服务"页面查看服务的访问地址：
+
+1. **IP:Port 方式**（推荐，无需认证）
+   - 格式：`http://<ExternalIP>:<Port>`
+   - 例如：`http://192.168.126.150:30080`
+   - 这种方式直接访问服务，不需要认证
+
+2. **域名方式**（可能需要认证）
+   - 格式：`http://<自动生成的域名>`
+   - 如果遇到 401 错误，说明域名配置了认证，请使用 IP:Port 方式
+
+### 服务状态（JSON）
+
+```bash
+curl "http://192.168.126.150:30080/api/status"
+```
+
 ### 创建用户
 
 ```bash
+# 使用 IP:Port 方式（推荐）
+curl -X POST "http://192.168.126.150:30080/api/users" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\": \"张三\", \"email\": \"zhangsan@example.com\"}"
+
+# 或者使用域名方式（可能需要在 Cube Studio 中登录）
 curl -X POST "http://your-domain/api/users" \
   -H "Content-Type: application/json" \
-  -d '{"name": "张三", "email": "zhangsan@example.com"}'
+  -d "{\"name\": \"张三\", \"email\": \"zhangsan@example.com\"}"
 ```
 
 ### 获取用户列表
 
 ```bash
-curl "http://your-domain/api/users"
+curl "http://192.168.126.150:30080/api/users"
 ```
 
 ### 获取单个用户
 
 ```bash
-curl "http://your-domain/api/users/1"
+curl "http://192.168.126.150:30080/api/users/1"
 ```
 
 ### 更新用户
 
 ```bash
-curl -X PUT "http://your-domain/api/users/1" \
+curl -X PUT "http://192.168.126.150:30080/api/users/1" \
   -H "Content-Type: application/json" \
-  -d '{"name": "李四", "email": "lisi@example.com"}'
+  -d "{\"name\": \"李四\", \"email\": \"lisi@example.com\"}"
 ```
 
 ### 删除用户
 
 ```bash
-curl -X DELETE "http://your-domain/api/users/1"
+curl -X DELETE "http://192.168.126.150:30080/api/users/1"
 ```
 
 ### 健康检查
 
 ```bash
-curl "http://your-domain/api/health"
+curl "http://192.168.126.150:30080/api/health"
 ```
+
+### 在浏览器中访问
+
+也可以直接在浏览器中访问：
+- 根路径：`http://<IP>:<Port>/`
+- API 文档：`http://<IP>:<Port>/docs`（FastAPI 自动生成的 Swagger 文档）
+- 健康检查：`http://<IP>:<Port>/api/health`
 
 ## 注意事项
 
@@ -386,6 +423,11 @@ curl "http://your-domain/api/health"
 2. **表结构**：应用首次启动时会自动创建 `users` 表
 3. **连接池**：使用 SQLAlchemy 连接池管理数据库连接，支持自动重连
 4. **生产环境**：建议使用 gunicorn + uvicorn workers 部署（Dockerfile 已配置）
+5. **401 错误处理**：
+   - 如果通过域名访问遇到 401 错误，说明域名配置了认证
+   - 解决方法：使用 IP:Port 方式直接访问（在推理服务页面查看 IP 和端口）
+   - IP:Port 方式不需要认证，可以直接访问 API
+6. **查看访问地址**：在 Cube Studio 的"推理服务"页面，点击服务名称，可以看到 IP 和端口信息
 
 ## 与 DataX 的区别
 
