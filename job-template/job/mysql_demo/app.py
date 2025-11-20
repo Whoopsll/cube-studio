@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-from pydantic import BaseModel
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 import os
@@ -44,13 +43,12 @@ class UserCreate(BaseModel):
     email: str
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     name: str
     email: str
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 # FastAPI 应用
 app = FastAPI(
@@ -83,7 +81,7 @@ async def health_check(db: Session = Depends(get_db)):
     """数据库连接检查"""
     try:
         # 执行简单查询测试连接
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         return {
             "status": "healthy",
             "database": MYSQL_DATABASE,
@@ -203,7 +201,7 @@ async def delete_user(user_id: int, db: Session = Depends(get_db)):
 async def get_user_count(db: Session = Depends(get_db)):
     """获取用户总数（使用 SQL 查询）"""
     try:
-        result = db.execute("SELECT COUNT(*) as count FROM users")
+        result = db.execute(text("SELECT COUNT(*) as count FROM users"))
         count = result.scalar()
         return {"count": count}
     except Exception as e:
