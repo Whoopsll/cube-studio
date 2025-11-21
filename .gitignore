@@ -1,5 +1,7 @@
 .DS_Store
 .idea
+.vscode
+node_modules
 __pycache__
 install/docker/file
 myapp/static/file
@@ -29,6 +31,3 @@ myapp/test
 /myapp/chatgpt-web/.pnpm-store/
 /myapp/flask_appbuilder/
 /myapp/chatgpt-web/distChat
-
-/job-template/service/AccessMgt/pg_vue3_pgjg/node_modules
-/job-template/service/AccessMgt/pg_vue3_zbdj/node_modules

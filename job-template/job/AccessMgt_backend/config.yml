@@ -1,8 +1,22 @@
+# AccessMgt 后端服务配置文件
+# 注意：此文件仅作为默认值，实际运行时优先使用环境变量
+# 环境变量会覆盖此配置文件中的值
+#
+# 环境变量说明：
+# SERVER_PORT: 服务端口（默认: 10086）
+# SERVER_IP: 服务IP地址（默认: 0.0.0.0）
+# MYSQL_HOST 或 MYSQL_IP: MySQL服务器地址（默认: mysql-service.infra）
+# MYSQL_PORT: MySQL端口（默认: 3306）
+# MYSQL_USER: MySQL用户名（默认: root）
+# MYSQL_PASSWORD: MySQL密码（默认: admin）
+# MYSQL_DB: MySQL数据库名（默认: AccessDB）
+# CURRENT_DIR: 当前工作目录（默认: /app）
+
 server_port: 10086
-server_ip: "127.0.0.1"
-mysql_ip: "127.0.0.1"
+server_ip: "0.0.0.0"
+mysql_ip: "mysql-service.infra"
 mysql_port: 3306
 mysql_user: "root"
-mysql_pwd: "123456"
+mysql_pwd: "admin"
 mysql_db: "AccessDB"
-current_dir: "C:\\Users\\59948\\Desktop\\AccessMgtServer"
+current_dir: "/app"
