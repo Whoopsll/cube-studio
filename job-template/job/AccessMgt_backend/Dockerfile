@@ -18,6 +18,7 @@ RUN pip install fastapi>=0.104.0 \
                 pymysql>=1.1.0 \
                 pyyaml>=6.0 \
                 python-docx>=1.1.0 \
+                python-multipart>=0.0.6 \
                 numexpr>=2.8.0 \
                 numpy>=1.24.0 \
                 pandas>=2.0.0 \
@@ -28,8 +29,8 @@ RUN pip install fastapi>=0.104.0 \
                 requests \
                 --index-url https://mirrors.aliyun.com/pypi/simple
 
-# 复制项目文件（从构建上下文根目录）
-COPY job/AccessMgt_backend/ /app/
+# 复制项目文件（从当前构建上下文）
+COPY . /app/
 
 # 创建必要的目录
 RUN mkdir -p /app/WordDir
@@ -38,7 +39,7 @@ RUN mkdir -p /app/WordDir
 WORKDIR /app
 
 # 设置环境变量
-ENV PYTHONPATH=/app:${PYTHONPATH:-}
+ENV PYTHONPATH=/app
 
 # 暴露端口
 EXPOSE 10086
