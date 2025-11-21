@@ -12,22 +12,7 @@ RUN apt update -y && \
 RUN /usr/local/bin/python -m pip install --upgrade pip
 
 # 安装Python依赖包
-RUN pip install fastapi>=0.104.0 \
-                uvicorn[standard]>=0.24.0 \
-                sqlalchemy>=2.0.0 \
-                pymysql>=1.1.0 \
-                pyyaml>=6.0 \
-                python-docx>=1.1.0 \
-                python-multipart>=0.0.6 \
-                numexpr>=2.8.0 \
-                numpy>=1.24.0 \
-                pandas>=2.0.0 \
-                scipy>=1.11.0 \
-                scikit-learn>=1.3.0 \
-                pysnooper \
-                psutil \
-                requests \
-                --index-url https://mirrors.aliyun.com/pypi/simple
+RUN pip install --no-cache-dir -r requirement.txt --index-url https://mirrors.aliyun.com/pypi/simple
 
 # 复制项目文件（从当前构建上下文）
 COPY . /app/
