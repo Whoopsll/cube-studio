@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.11
 
 ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,17 +11,19 @@ RUN apt update -y && \
 # 升级 pip
 RUN /usr/local/bin/python -m pip install --upgrade pip
 
-# 安装Python依赖包
-RUN pip install --no-cache-dir -r requirement.txt --index-url https://mirrors.aliyun.com/pypi/simple
+
 
 # 复制项目文件（从当前构建上下文）
 COPY . /app/
 
-# 创建必要的目录
-RUN mkdir -p /app/WordDir
-
 # 设置工作目录
 WORKDIR /app
+
+# 安装Python依赖包
+RUN pip install --no-cache-dir -r requirements.txt --index-url https://mirrors.aliyun.com/pypi/simple
+
+# 创建必要的目录
+RUN mkdir -p /app/WordDir
 
 # 设置环境变量
 ENV PYTHONPATH=/app
