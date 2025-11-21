@@ -1,0 +1,8 @@
+server_port: 10086
+server_ip: "0.0.0.0"
+mysql_ip: "mysql-service.infra"
+mysql_port: 3306
+mysql_user: "root"
+mysql_pwd: "admin"
+mysql_db: "AccessDB"
+current_dir: "/app"
