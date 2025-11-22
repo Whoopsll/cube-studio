@@ -25,7 +25,7 @@ class MetricTable(Base):
     """
     指标管理
     """
-    __tablename__ = "MetricTable"
+    __tablename__ = "metrictable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     name = Column(String(256), name="name", nullable=False, comment="指标名称")
     formula = Column(String(512), name="formula", nullable=False, comment="公式")
@@ -48,7 +48,7 @@ class AccessDataTable(Base):
     """
     评估数据管理
     """
-    __tablename__ = "AccessDataTable"
+    __tablename__ = "accessdatatable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     system_name = Column(String(256), name="system_name", nullable=False, comment="体系名称")
     system_description = Column(Text, name="system_description", comment="备注")
@@ -71,7 +71,7 @@ class BasicCollectTable(Base):
     """
     原始数据汇总表
     """
-    __tablename__ = "BasicCollectTable"
+    __tablename__ = "basiccollecttable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     name = Column(String(256), name="name", nullable=False, comment="推演数据汇总名称")
     createTime = Column(String(256), name="createTime", nullable=False, comment="创建时间")
@@ -87,7 +87,7 @@ class BasicTable(Base):
     """
     原始数据索引表
     """
-    __tablename__ = "BasicTable"
+    __tablename__ = "basictable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     name = Column(String(256), name="name", nullable=False, comment="推演数据名称")
     createTime = Column(String(256), name="createTime", nullable=False, comment="创建时间")
@@ -108,7 +108,7 @@ class BasicDictTable(Base):
     """
     原始数据字典集合
     """
-    __tablename__ = "BasicDictTable"
+    __tablename__ = "basicdicttable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     basic_id = Column(Integer, name="basic_id", nullable=False, comment="原始数据数据索引表id")
     col_type = Column(String(256), name="col_type", nullable=False, comment="数据类型")
@@ -128,7 +128,7 @@ class BasicRowDataTable(Base):
     """
     原始数据基础表
     """
-    __tablename__ = "BasicRowDataTable"
+    __tablename__ = "basicrowdatatable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     row_data = Column(JSON, name="row_data", nullable=False, comment="原始数据集合")
 
@@ -145,7 +145,7 @@ class SystemTable(Base):
     """
     体系基础表
     """
-    __tablename__ = "SystemTable"
+    __tablename__ = "systemtable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     name = Column(String(256), name="name", nullable=False, comment="体系名称")
     description = Column(Text, name="description", comment="备注")
@@ -164,7 +164,7 @@ class SystemDetailTable(Base):
     """
     体系详情
     """
-    __tablename__ = "SystemDetailTable"
+    __tablename__ = "systemdetailtable"
     id = Column(Integer, name="id", nullable=False, primary_key=True, comment="id,唯一标识，自增")
     system_id = Column(Integer, name="system_id", nullable=False, comment="体系id")
     system_detail = Column(JSON, name="system_detail", nullable=False, comment="详情")
